@@ -1,0 +1,16 @@
+# Environnements virtuels Python
+.venv/
+venv/
+
+# Fichiers compilés par Python
+__pycache__/
+*.pyc
+
+# Secrets : jamais dans Git
+.env
+
+# Fichiers générés par le pipeline
+backend/data/chunks.json
+
+# Notebooks
+.ipynb_checkpoints/
