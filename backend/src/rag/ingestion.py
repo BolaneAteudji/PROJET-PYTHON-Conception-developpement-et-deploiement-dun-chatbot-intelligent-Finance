@@ -5,7 +5,7 @@
     2. Découpage : transformer chaque document en une liste de chunks.
     3. Sauvegarde : écrire les chunks dans un fichier JSON pour les inspecter.
 
-Les embeddings et l'indexation dans la base vectorielle viendront à l'étape suivante.
+Les embeddings et l'indexation dans la base vectorielle sont dans indexation.py.
 
 Lancement, depuis le dossier backend/ :
     python -m src.rag.ingestion
@@ -167,11 +167,21 @@ def nouveau_chunk(document: Document, numero: int, section: str, contenu: str) -
     )
 
 
+def assembler_sections(sections: list[tuple[str, str]]) -> tuple[str, str]:
+    """Fusionne des sections courtes en un seul couple (nom, contenu)."""
+    if len(sections) == 1:
+        return sections[0]
+    nom = ", ".join(n for n, _ in sections)
+    contenu = "\n\n".join(f"{n} : {c}" for n, c in sections)
+    return nom, contenu
+
+
 def decouper_markdown(document: Document) -> list[Chunk]:
     """Une section = un chunk, sauf deux cas.
 
     Les sections trop courtes sont regroupées avec les suivantes (c'est le cas
-    du glossaire), et les sections trop longues sont redécoupées à taille fixe.
+    du glossaire) sans jamais dépasser CHUNK_MAX_CHARS, et les sections trop
+    longues sont redécoupées à taille fixe.
     """
     chunks: list[Chunk] = []
     en_attente: list[tuple[str, str]] = []  # sections courtes à regrouper
@@ -179,11 +189,7 @@ def decouper_markdown(document: Document) -> list[Chunk]:
     def vider_attente() -> None:
         if not en_attente:
             return
-        if len(en_attente) == 1:
-            nom, contenu = en_attente[0]
-        else:
-            nom = ", ".join(n for n, _ in en_attente)
-            contenu = "\n\n".join(f"{n} : {c}" for n, c in en_attente)
+        nom, contenu = assembler_sections(en_attente)
         chunks.append(nouveau_chunk(document, len(chunks), nom, contenu))
         en_attente.clear()
 
@@ -196,8 +202,12 @@ def decouper_markdown(document: Document) -> list[Chunk]:
             for i, morceau in enumerate(morceaux, start=1):
                 chunks.append(nouveau_chunk(document, len(chunks), f"{nom} ({i})", morceau))
             continue
+        # On vide d'abord le groupe si l'ajout de cette section le ferait déborder.
+        candidat = assembler_sections(en_attente + [(nom, contenu)])[1]
+        if en_attente and len(candidat) > config.CHUNK_MAX_CHARS:
+            vider_attente()
         en_attente.append((nom, contenu))
-        if sum(len(c) for _, c in en_attente) >= config.CHUNK_MIN_CHARS:
+        if len(assembler_sections(en_attente)[1]) >= config.CHUNK_MIN_CHARS:
             vider_attente()
     vider_attente()
     return chunks
@@ -241,7 +251,11 @@ def sauvegarder(chunks: list[Chunk], chemin: Path) -> None:
 
 
 def main() -> None:
+    """Ingère le dossier de documents, sauvegarde les chunks et affiche des statistiques."""
     chunks = ingerer_dossier(config.DOCS_DIR)
+    if not chunks:
+        print(f"Aucun document exploitable dans {config.DOCS_DIR}")
+        return
     sauvegarder(chunks, config.CHUNKS_PATH)
     tailles = [len(c.contenu) for c in chunks]
     print(f"{len({c.doc for c in chunks})} documents -> {len(chunks)} chunks")
