@@ -19,6 +19,7 @@ CREATE TABLE comptes (
                     CHECK (type_compte IN ('PEA', 'CTO', 'ASSURANCE_VIE')),
     date_ouverture  DATE NOT NULL
 );
+CREATE INDEX idx_comptes_user ON comptes (user_id);
 
 CREATE TABLE securities (
     id            SERIAL PRIMARY KEY,
@@ -91,3 +92,16 @@ CREATE TABLE messages (
     created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX idx_messages_conversation ON messages (conversation_id, id);
+
+-- Met à jour conversations.updated_at à chaque nouveau message,
+-- pour que la liste des conversations reste triée par activité récente.
+CREATE FUNCTION maj_conversation_updated_at() RETURNS trigger AS $$
+BEGIN
+    UPDATE conversations SET updated_at = now() WHERE id = NEW.conversation_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_messages_maj_conversation
+AFTER INSERT ON messages
+FOR EACH ROW EXECUTE FUNCTION maj_conversation_updated_at();
