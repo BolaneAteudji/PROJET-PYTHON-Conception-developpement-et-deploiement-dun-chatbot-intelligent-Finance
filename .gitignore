@@ -17,3 +17,5 @@ backend/data/chunks.json
 
 # Base vectorielle Chroma (régénérée par python -m src.rag.indexation)
 backend/data/chroma/
+# Réglages personnels de l'éditeur
+.vscode/

@@ -1,0 +1,2 @@
+date;modele;max_tokens;chunk_min_chars;fixed_chunk_size;fixed_chunk_overlap;top_k;hit@1;hit@3;hit@5;MRR
+2026-11-23 18:16;sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2;128;200;500;80;4;0.773;0.909;0.909;0.841

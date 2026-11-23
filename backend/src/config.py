@@ -41,4 +41,8 @@ COLLECTION_NAME = "finance_docs"
 TOP_K = 4
 # Similarité cosinus minimale pour garder un chunk (à calibrer sur les
 # questions types, voir le rapport).
-SIMILARITY_THRESHOLD = 0.30
+# Similarité cosinus minimale pour garder un chunk. Calibrée sur le jeu d'évaluation :
+# hors domaine < 0,1 ; questions RAG >= 0,13. Les questions du domaine non couvertes
+# (PER, SCPI : 0,52 à 0,60) ne sont pas séparables par un seuil : le prompt système
+# demande au LLM de dire quand le contexte ne contient pas la réponse.
+SIMILARITY_THRESHOLD = 0.20
