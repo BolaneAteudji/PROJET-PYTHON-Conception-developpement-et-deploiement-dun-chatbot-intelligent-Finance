@@ -17,11 +17,11 @@ CHUNK_MIN_CHARS = 200
 # Une section plus longue que CHUNK_MAX_CHARS est redécoupée à taille fixe.
 CHUNK_MAX_CHARS = 1200
 
-# Découpage à taille fixe 
+# Découpage à taille fixe
 FIXED_CHUNK_SIZE = 500
 FIXED_CHUNK_OVERLAP = 80
 
-#RAG : embeddings 
+#RAG : embeddings
 # Modèle multilingue (les fiches sont en français). Changer de modèle impose
 # de réindexer : les vecteurs de deux modèles ne sont pas comparables.
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
@@ -35,7 +35,7 @@ EMBEDDING_MAX_TOKENS = 128
 EMBEDDING_QUERY_PREFIX = ""
 EMBEDDING_DOC_PREFIX = ""
 
-# RAG : base vectorielle et recherche 
+# RAG : base vectorielle et recherche
 CHROMA_DIR = BACKEND_DIR / "data" / "chroma"
 COLLECTION_NAME = "finance_docs"
 TOP_K = 4
