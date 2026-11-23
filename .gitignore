@@ -14,3 +14,6 @@ backend/data/chunks.json
 
 # Notebooks
 .ipynb_checkpoints/
+
+# Base vectorielle Chroma (régénérée par python -m src.rag.indexation)
+backend/data/chroma/
