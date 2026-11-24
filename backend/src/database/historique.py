@@ -9,15 +9,26 @@ from src import config
 from src.database.connexion import connexion
 
 
-def creer_conversation(user_id: str, premier_message: str) -> UUID:
-    """Crée une conversation, avec le début du premier message comme titre."""
-    titre = premier_message[:config.TITRE_MAX_CHARS]
+def enregistrer_echange(user_id: str, conversation_id: UUID | None,
+                        question: str, reponse: str) -> UUID:
+    """Enregistre la question et la réponse, et crée la conversation si besoin.
+
+    Tout se passe dans une seule transaction : si l'insertion des messages
+    plante, la conversation n'est pas créée non plus (pas de conversation vide).
+    """
     with connexion() as conn:
-        ligne = conn.execute(
-            "INSERT INTO conversations (user_id, titre) VALUES (%s, %s) RETURNING id",
-            (user_id, titre),
-        ).fetchone()
-    return ligne[0]
+        if conversation_id is None:
+            titre = question[:config.TITRE_MAX_CHARS]
+            conversation_id = conn.execute(
+                "INSERT INTO conversations (user_id, titre) VALUES (%s, %s) RETURNING id",
+                (user_id, titre),
+            ).fetchone()[0]
+        conn.execute(
+            "INSERT INTO messages (conversation_id, role, content) "
+            "VALUES (%s, 'user', %s), (%s, 'assistant', %s)",
+            (conversation_id, question, conversation_id, reponse),
+        )
+    return conversation_id
 
 
 def conversation_de(user_id: str, conversation_id: UUID) -> bool:

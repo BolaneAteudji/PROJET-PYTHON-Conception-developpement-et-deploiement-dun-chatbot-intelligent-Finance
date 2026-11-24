@@ -46,10 +46,10 @@ def chat(demande: ChatRequest) -> ChatResponse:
         raise HTTPException(503, f"Recherche dans les documents impossible : {erreur}")
     reponse = repondre(passages)
 
-    conversation_id = demande.conversation_id or historique.creer_conversation(
-        demande.user_id, demande.message
+    # Crée la conversation si besoin et enregistre l'échange, en une seule transaction.
+    conversation_id = historique.enregistrer_echange(
+        demande.user_id, demande.conversation_id, demande.message, reponse
     )
-    historique.enregistrer_echange(conversation_id, demande.message, reponse)
 
     return ChatResponse(
         conversation_id=conversation_id,
