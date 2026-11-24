@@ -39,13 +39,3 @@ def conversation_de(user_id: str, conversation_id: UUID) -> bool:
             (conversation_id, user_id),
         ).fetchone()
     return ligne is not None
-
-
-def enregistrer_echange(conversation_id: UUID, question: str, reponse: str) -> None:
-    """Enregistre la question et la réponse dans la même transaction."""
-    with connexion() as conn:
-        conn.execute(
-            "INSERT INTO messages (conversation_id, role, content) "
-            "VALUES (%s, 'user', %s), (%s, 'assistant', %s)",
-            (conversation_id, question, conversation_id, reponse),
-        )
