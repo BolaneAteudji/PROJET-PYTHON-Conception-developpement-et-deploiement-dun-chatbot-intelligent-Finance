@@ -46,3 +46,7 @@ TOP_K = 4
 # (PER, SCPI : 0,52 à 0,60) ne sont pas séparables par un seuil : le prompt système
 # demande au LLM de dire quand le contexte ne contient pas la réponse.
 SIMILARITY_THRESHOLD = 0.20
+
+# API
+MESSAGE_MAX_CHARS = 2000  # au-delà, la question est refusée (422)
+TITRE_MAX_CHARS = 60  # début du premier message gardé comme titre de conversation
