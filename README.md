@@ -1,3 +1,7 @@
+
+<img width="123" height="98" alt="image" src="https://github.com/user-attachments/assets/9c7bbc53-7f1f-40c7-b98a-ed4a1f227e56" />
+
+
 # PROJET PYTHON Conception développement et déploiement d’un chatbot intelligent Finance
 
 
